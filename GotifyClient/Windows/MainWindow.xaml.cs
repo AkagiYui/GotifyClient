@@ -11,7 +11,6 @@ namespace GotifyClient.Windows
     public partial class MainWindow
     {
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
-
         public MainWindow()
         {
             InitializeComponent();
