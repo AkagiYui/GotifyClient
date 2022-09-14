@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GotifyClient")]
-[assembly: AssemblyDescription("Notification client for Gotify")]
+[assembly: AssemblyDescription("Notification client for Gotify on Windows")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("AkagiYui")]
 [assembly: AssemblyProduct("GotifyClient")]
