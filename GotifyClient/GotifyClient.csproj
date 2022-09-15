@@ -113,6 +113,9 @@
         <Compile Include="Modules\NotifyIconViewModel.cs" />
         <Compile Include="Modules\Utils.cs" />
         <Compile Include="Program.cs" />
+        <Compile Include="Windows\AddListenerWindow.xaml.cs">
+          <DependentUpon>AddListenerWindow.xaml</DependentUpon>
+        </Compile>
         <Compile Include="Windows\MainWindow.xaml.cs">
           <DependentUpon>MainWindow.xaml</DependentUpon>
           <SubType>Code</SubType>
@@ -147,6 +150,7 @@
       <Content Include="Properties\app.manifest" />
     </ItemGroup>
     <ItemGroup>
+      <Page Include="Windows\AddListenerWindow.xaml" />
       <Page Include="Windows\MainWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <SubType>Designer</SubType>

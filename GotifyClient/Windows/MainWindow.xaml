@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GotifyClient"
-        xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="GotifyClient" Height="600" Width="800"
         Closing="MainWindow_OnClosing">
+    <Window.Resources>
+        <ContextMenu x:Shared="True" x:Key="ListMenu">
+            <MenuItem Header="Edit" />
+            <MenuItem Header="Remove" />
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Listeners">
@@ -20,12 +25,11 @@
                         <RowDefinition />
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
-                    <ListBox Grid.Row="0" Grid.Column="0" Margin="6" x:Name="ConnectionBox" >
-
-                    </ListBox>
-                    <Button Grid.Row="1" Grid.Column="0"  Margin="6" Content="Add"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Margin="6" x:Name="Log" TextWrapping="Wrap"></TextBox>
-                    <Button Grid.Row="1" Grid.Column="1" Margin="6" Content="Connect" Click="ButtonBase_OnClick"></Button>
+                    
+                    <ListBox Grid.Row="0" Grid.Column="0" Margin="6" x:Name="ConnectionBox" PreviewMouseRightButtonUp="ConnectionBox_OnPreviewMouseRightButtonUp" ContextMenu="{StaticResource ListMenu}"/>
+                    <Button Grid.Row="1" Grid.Column="0"  Margin="6" x:Name="AddButton" Content="Add" Click="AddButton_OnClick"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="6" x:Name="LogTextBox" TextWrapping="Wrap"></TextBox>
+                    <Button Grid.Row="1" Grid.Column="1" Margin="6"  x:Name="ConnectButton" Content="Connect" Click="ConnectButton_OnClick"></Button>
                 </Grid>
             </TabItem>
             <TabItem Header="Senders">

@@ -2,14 +2,21 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using GotifyClient.Entities;
 using GotifyClient.Modules;
+using log4net;
+using log4net.Repository.Hierarchy;
 using Websocket.Client.Models;
 
 namespace GotifyClient.Windows
 {
+    
     public partial class MainWindow
     {
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
         public MainWindow()
         {
@@ -19,7 +26,7 @@ namespace GotifyClient.Windows
             Connections.CallbackOnReconnected += OnReconnected;
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void ConnectButton_OnClick(object sender, RoutedEventArgs e)
         {
             Trace.WriteLine(Owner);
             foreach(var listener in Connections.Listeners)
@@ -38,7 +45,7 @@ namespace GotifyClient.Windows
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                Log.AppendText($"{Environment.NewLine}Reconnected: {msg.Type}");
+                LogTextBox.AppendText($"{Environment.NewLine}Reconnected: {msg.Type}");
             }));
         }
         
@@ -53,8 +60,38 @@ namespace GotifyClient.Windows
                 log += $"{Environment.NewLine}Title: {t.Title}";
                 log += $"{Environment.NewLine}Message: {t.Message}";
                 log += Environment.NewLine;
-                Log.AppendText(log);
+                LogTextBox.AppendText(log);
             }));
+        }
+
+        private void ConnectionBox_OnPreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            object item = GetElementFromPoint((ItemsControl)sender, e.GetPosition((ItemsControl)sender));
+            Logger.Info(item != null);
+        }
+        
+        private object GetElementFromPoint(ItemsControl itemsControl, Point point)
+        {
+            UIElement element = itemsControl.InputHitTest(point) as UIElement;
+            while (element != null)
+            {
+                if (element == itemsControl)
+                    return null;
+                object item = itemsControl.ItemContainerGenerator.ItemFromContainer(element);
+                if (!item.Equals(DependencyProperty.UnsetValue))
+                    return item;
+                element = (UIElement)VisualTreeHelper.GetParent(element);
+            }
+            return null;
+        }
+
+        private void AddButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var addListenerWindow = new AddListenerWindow()
+            {
+                Owner = this
+            };
+            addListenerWindow.ShowDialog();
         }
     }
 }
