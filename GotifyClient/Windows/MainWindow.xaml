@@ -9,8 +9,8 @@
         Closing="MainWindow_OnClosing">
     <Window.Resources>
         <ContextMenu x:Shared="True" x:Key="ListMenu">
-            <MenuItem Header="Edit" />
-            <MenuItem Header="Remove" />
+            <MenuItem Header="Edit" Click="MenuItemEdit_OnClick"/>
+            <MenuItem Header="Remove" Click="MenuItemRemove_OnClick"/>
         </ContextMenu>
     </Window.Resources>
     <Grid>
@@ -25,10 +25,44 @@
                         <RowDefinition />
                         <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
-                    
-                    <ListBox Grid.Row="0" Grid.Column="0" Margin="6" x:Name="ConnectionBox" PreviewMouseRightButtonUp="ConnectionBox_OnPreviewMouseRightButtonUp" ContextMenu="{StaticResource ListMenu}"/>
-                    <Button Grid.Row="1" Grid.Column="0"  Margin="6" x:Name="AddButton" Content="Add" Click="AddButton_OnClick"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Margin="6" x:Name="LogTextBox" TextWrapping="Wrap"></TextBox>
+                    <Grid  Margin="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Content="Clients" HorizontalAlignment="Center"/>
+                        <ListBox Grid.Row="1" Margin="0,6,0,0" x:Name="ConnectionBox" 
+                                 PreviewMouseRightButtonUp="ConnectionBox_OnPreviewMouseRightButtonUp"
+                                 ContextMenu="{StaticResource ListMenu}"/>
+                    </Grid>
+                    <Button Grid.Row="1" Grid.Column="0" Margin="6" x:Name="AddButton" Content="Add" Click="AddButton_OnClick"/>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Row="0" Header="information">
+                            <Grid>
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="60"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition MinHeight="30"/>
+                                    <RowDefinition MinHeight="30"/>
+                                    <RowDefinition MinHeight="30"/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="Name" Width="100" Margin="5,10,0,10"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="123" IsReadOnly="True" VerticalContentAlignment="Center" Margin="10,10,10,10"/>
+                                <Label Grid.Row="1" Grid.Column="0" Content="Url" Width="100" Margin="5,0,0,10"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="123" IsReadOnly="True" VerticalContentAlignment="Center" Margin="10,0,10,10"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="Token" Width="100" Margin="5,0,0,10"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="123" IsReadOnly="True" VerticalContentAlignment="Center" Margin="10,0,10,10"/>
+                            </Grid>
+                        </GroupBox>
+                        <TextBox Grid.Row="1" x:Name="LogTextBox" TextWrapping="Wrap" Margin="0,10,0,0" />
+                    </Grid>
                     <Button Grid.Row="1" Grid.Column="1" Margin="6"  x:Name="ConnectButton" Content="Connect" Click="ConnectButton_OnClick"></Button>
                 </Grid>
             </TabItem>

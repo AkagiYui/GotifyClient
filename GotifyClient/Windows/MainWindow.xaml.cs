@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using GotifyClient.Entities;
 using GotifyClient.Modules;
 using log4net;
-using log4net.Repository.Hierarchy;
 using Websocket.Client.Models;
 
 namespace GotifyClient.Windows
@@ -31,7 +30,7 @@ namespace GotifyClient.Windows
             Trace.WriteLine(Owner);
             foreach(var listener in Connections.Listeners)
             {
-                listener.Start();
+                listener.Value.Start();
             }
         }
 
@@ -66,32 +65,39 @@ namespace GotifyClient.Windows
 
         private void ConnectionBox_OnPreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            object item = GetElementFromPoint((ItemsControl)sender, e.GetPosition((ItemsControl)sender));
-            Logger.Info(item != null);
+            var item = Utils.GetElementFromPoint((ItemsControl)sender, e.GetPosition((ItemsControl)sender));
+            if (item == null)
+            {
+                ConnectionBox.UnselectAll();
+            }
         }
         
-        private object GetElementFromPoint(ItemsControl itemsControl, Point point)
-        {
-            UIElement element = itemsControl.InputHitTest(point) as UIElement;
-            while (element != null)
-            {
-                if (element == itemsControl)
-                    return null;
-                object item = itemsControl.ItemContainerGenerator.ItemFromContainer(element);
-                if (!item.Equals(DependencyProperty.UnsetValue))
-                    return item;
-                element = (UIElement)VisualTreeHelper.GetParent(element);
-            }
-            return null;
-        }
-
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var addListenerWindow = new AddListenerWindow()
+            var addListenerWindow = new EditListenerWindow()
             {
                 Owner = this
             };
             addListenerWindow.ShowDialog();
+            ConnectionBox.Items.Refresh();
+        }
+
+        private void MenuItemEdit_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!(ConnectionBox.SelectedItem is KeyValuePair<string, Listener> pair)) return;
+            var addListenerWindow = new EditListenerWindow(pair.Value)
+            {
+                Owner = this
+            };
+            addListenerWindow.ShowDialog();
+            ConnectionBox.Items.Refresh();
+        }
+
+        private void MenuItemRemove_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!(ConnectionBox.SelectedItem is KeyValuePair<string, Listener> pair)) return;
+            Connections.RemoveServer(pair.Key);
+            ConnectionBox.Items.Refresh();
         }
     }
 }

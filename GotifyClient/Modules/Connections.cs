@@ -16,7 +16,7 @@ namespace GotifyClient.Modules
     public class Connections
     {
         private readonly TaskbarIcon _taskbar = (TaskbarIcon)Application.Current.Resources["Taskbar"];
-        public readonly List<Listener> Listeners = new List<Listener>();
+        public readonly Dictionary<string, Listener> Listeners = new Dictionary<string, Listener>();
         private const string ConfigPath = "config.yaml";
         private ConfigEntity _config;
         public Action<GotifyMessageEntity> CallbackOnMessage { get; set; }
@@ -28,8 +28,9 @@ namespace GotifyClient.Modules
             LoadConfig();
             foreach (var server in _config.Servers)
             {
-                var listener = new Listener($"{server.Host}:{server.Port}", server.Token, OnMessage, OnReconnected);
-                Listeners.Add(listener);
+                if (Listeners.ContainsKey(server.Name)) continue;
+                var listener = new Listener(server, OnMessage, OnReconnected);
+                Listeners.Add(server.Name, listener);
             }
         }
         
@@ -75,7 +76,52 @@ namespace GotifyClient.Modules
                 _config = deserializer.Deserialize<ConfigEntity>(reader) ?? new ConfigEntity();
             }
         }
+
+        private void SaveConfig()
+        {
+            using (TextWriter writer = File.CreateText(ConfigPath))
+            {
+                _config.Servers = new List<ServerEntity>();
+                foreach (var listener in Listeners)
+                {
+                    var value = listener.Value;
+                    var server = new ServerEntity
+                    {
+                        Name = value.Name,
+                        Host = value.Host,
+                        Port = value.Port,
+                        Token = value.Token
+                    };
+                    _config.Servers.Add(server);
+                }
+                
+                var serializer = new SerializerBuilder()
+                    .WithNamingConvention(CamelCaseNamingConvention.Instance) // 应用命名规范
+                    .Build();
+                serializer.Serialize(writer, _config);
+            }
+        }
+        
+        public void AddServer(ServerEntity server)
+        {
+            if (string.IsNullOrEmpty(server.Name) || Listeners.ContainsKey(server.Name))
+            {
+                return;
+            }
+            var listener = new Listener(server, OnMessage, OnReconnected);
+            Listeners.Add(server.Name, listener);
+            SaveConfig();
+        }
+        
+        public void RemoveServer(string name)
+        {
+            if (string.IsNullOrEmpty(name) || !Listeners.ContainsKey(name))
+            {
+                return;
+            }
+            Listeners[name].Stop();
+            Listeners.Remove(name);
+            SaveConfig();
+        }
     }
-    
-    
 }

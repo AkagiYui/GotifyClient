@@ -1,11 +1,11 @@
-﻿<Window x:Class="GotifyClient.Windows.AddListenerWindow"
+﻿<Window x:Class="GotifyClient.Windows.EditListenerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:GotifyClient.Windows"
         mc:Ignorable="d"
-        Title="AddListener" Height="230" Width="300">
+        Title="EditListener" Height="230" Width="300">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="6"/>
@@ -43,11 +43,11 @@
             <Label Grid.Row="1" Grid.Column="0" Content="Host" />
             <Label Grid.Row="2" Grid.Column="0" Content="Port" />
             <Label Grid.Row="3" Grid.Column="0" Content="Token" />
-            <TextBox Grid.Row="0" Grid.Column="1" Text="123"></TextBox>
-            <TextBox Grid.Row="1" Grid.Column="1" Text="123"></TextBox>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="123"></TextBox>
-            <TextBox Grid.Row="3" Grid.Column="1" Text="123"></TextBox>
+            <TextBox Grid.Row="0" Grid.Column="1" Name="TextBoxName" Text=""></TextBox>
+            <TextBox Grid.Row="1" Grid.Column="1" Name="TextBoxHost" Text=""></TextBox>
+            <TextBox Grid.Row="2" Grid.Column="1" Name="TextBoxPort" Text=""></TextBox>
+            <TextBox Grid.Row="3" Grid.Column="1" Name="TextBoxToken" Text=""></TextBox>
         </Grid>
-        <Button Grid.Row="1" Content="Save" Margin="6,0,6,6"></Button>
+        <Button Grid.Row="1" Content="Save" Margin="6,0,6,6" Click="ButtonBase_OnClick"></Button>
     </Grid>
 </Window>
