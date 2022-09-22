@@ -9,10 +9,10 @@ namespace GotifyClient.Modules
 {
     public class Listener
     {
-        public readonly string Name;
-        public readonly string Host;
-        public readonly string Port;
-        public readonly string Token;
+        public string Name;
+        public string Host;
+        public string Port;
+        public string Token;
         
         private readonly Action<ResponseMessage> _onMessage;
         private readonly Action<ReconnectionInfo> _onReconnected;
@@ -92,7 +92,7 @@ namespace GotifyClient.Modules
         
         public override string ToString()
         {
-            return Name;
+            return $"Listener: {Name}";
         }
     }
 }

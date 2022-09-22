@@ -17,10 +17,25 @@ namespace GotifyClient.Windows
     {
         private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
+        private Listener _listener;
+        private Listener SelectedListener
+        {
+            get => _listener;
+            set
+            {
+                if (_listener == value) return;
+                _listener = value;
+                if (_listener == null) return;
+                NameTextBox.Text = _listener.Name;
+                UrlTextBox.Text = $"{_listener.Host}:{_listener.Port}";
+                TokenTextBox.Text = _listener.Token;
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
-            ConnectionBox.ItemsSource = Connections.Listeners;
+            ConnectionBox.ItemsSource = Connections.GetAllNames();
             Connections.CallbackOnMessage += OnMessage;
             Connections.CallbackOnReconnected += OnReconnected;
         }
@@ -84,20 +99,30 @@ namespace GotifyClient.Windows
 
         private void MenuItemEdit_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!(ConnectionBox.SelectedItem is KeyValuePair<string, Listener> pair)) return;
-            var addListenerWindow = new EditListenerWindow(pair.Value)
+            if (!(ConnectionBox.SelectedItem is string listenerName)) return;
+            var addListenerWindow = new EditListenerWindow(Connections.GetListener(listenerName))
             {
                 Owner = this
             };
             addListenerWindow.ShowDialog();
-            ConnectionBox.Items.Refresh();
+            ConnectionBox.ItemsSource = Connections.GetAllNames();
         }
 
         private void MenuItemRemove_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!(ConnectionBox.SelectedItem is KeyValuePair<string, Listener> pair)) return;
-            Connections.RemoveServer(pair.Key);
-            ConnectionBox.Items.Refresh();
+            if (!(ConnectionBox.SelectedItem is string listenerName)) return;
+            Connections.RemoveServer(listenerName);
+            ConnectionBox.ItemsSource = Connections.GetAllNames();
+        }
+
+        private void ConnectionBox_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (!(Utils.GetElementFromPoint((ItemsControl)sender, e.GetPosition((ItemsControl)sender)) is string name))
+            {
+                return;
+            }
+            SelectedListener = Connections.GetListener(name);
+            
         }
     }
 }

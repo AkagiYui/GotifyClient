@@ -4,13 +4,21 @@ using GotifyClient.Modules;
 
 namespace GotifyClient.Windows
 {
-    public partial class EditListenerWindow : Window
+    public partial class EditListenerWindow
     {
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
+        private static ServerEntity _isEdit;
         public EditListenerWindow(Listener listener = null)
         {
             InitializeComponent();
             if (listener == null) return;
+            _isEdit = new ServerEntity
+            {
+                Name = listener.Name,
+                Host = listener.Host,
+                Port = listener.Port,
+                Token = listener.Token
+            };
             TextBoxName.Text = listener.Name;
             TextBoxHost.Text = listener.Host;
             TextBoxPort.Text = listener.Port;
@@ -29,7 +37,7 @@ namespace GotifyClient.Windows
                 Host = TextBoxHost.Text,
                 Port = TextBoxPort.Text,
                 Token = TextBoxToken.Text
-            });
+            }, _isEdit);
             Close();
         }
     }

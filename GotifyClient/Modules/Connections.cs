@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using GotifyClient.Entities;
 using Hardcodet.Wpf.TaskbarNotification;
@@ -32,6 +33,16 @@ namespace GotifyClient.Modules
                 var listener = new Listener(server, OnMessage, OnReconnected);
                 Listeners.Add(server.Name, listener);
             }
+        }
+
+        public IEnumerable<string> GetAllNames()
+        {
+            return _config.Servers.Select(server => server.Name).ToList();
+        }
+        
+        public Listener GetListener(string name)
+        {
+            return Listeners.TryGetValue(name, out var listener) ? listener : null;
         }
         
         private void OnReconnected(ReconnectionInfo msg)
@@ -102,14 +113,31 @@ namespace GotifyClient.Modules
             }
         }
         
-        public void AddServer(ServerEntity server)
+        public void AddServer(ServerEntity server, ServerEntity oriServer = null)
         {
             if (string.IsNullOrEmpty(server.Name) || Listeners.ContainsKey(server.Name))
             {
                 return;
             }
-            var listener = new Listener(server, OnMessage, OnReconnected);
-            Listeners.Add(server.Name, listener);
+
+            if (!(oriServer is null))
+            {
+                var listener = Listeners[oriServer.Name];
+                if (listener.Name != server.Name)
+                {
+                    listener.Name = server.Name;
+                    Listeners.Add(server.Name, listener);
+                    Listeners.Remove(oriServer.Name);
+                }
+                listener.Host = server.Host;
+                listener.Port = server.Port;
+                listener.Token = server.Token;
+            }
+            else
+            {
+                var listener = new Listener(server, OnMessage, OnReconnected);
+                Listeners.Add(server.Name, listener);
+            }
             SaveConfig();
         }
         
