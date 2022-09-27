@@ -16,7 +16,7 @@
         
         <tb:TaskbarIcon x:Key="Taskbar" 
                         ContextMenu="{StaticResource SysTrayMenu}"
-                        IconSource="icon.ico" 
+                        IconSource="icon.ico"
                         ToolTipText="GotifyClient"
                         DoubleClickCommand="{Binding ToggleWindowCommand}">
             <tb:TaskbarIcon.DataContext>

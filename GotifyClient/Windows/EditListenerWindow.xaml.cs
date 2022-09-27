@@ -8,21 +8,21 @@ namespace GotifyClient.Windows
     {
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
         private static ServerEntity _isEdit;
-        public EditListenerWindow(Listener listener = null)
+        public EditListenerWindow(Client client = null)
         {
             InitializeComponent();
-            if (listener == null) return;
+            if (client == null) return;
             _isEdit = new ServerEntity
             {
-                Name = listener.Name,
-                Host = listener.Host,
-                Port = listener.Port,
-                Token = listener.Token
+                Name = client.Name,
+                Host = client.Host,
+                Port = client.Port,
+                Token = client.Token
             };
-            TextBoxName.Text = listener.Name;
-            TextBoxHost.Text = listener.Host;
-            TextBoxPort.Text = listener.Port;
-            TextBoxToken.Text = listener.Token;
+            TextBoxName.Text = client.Name;
+            TextBoxHost.Text = client.Host;
+            TextBoxPort.Text = client.Port;
+            TextBoxToken.Text = client.Token;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

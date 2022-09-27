@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,7 +7,7 @@ using System.Windows.Media;
 
 namespace GotifyClient.Modules
 {
-    public class Utils
+    public static class Utils
     {
         public static IntPtr GetHwnd(Window window) //获取窗口句柄
         {
@@ -15,7 +16,7 @@ namespace GotifyClient.Modules
         
         public static object GetElementFromPoint(ItemsControl itemsControl, Point point)
         {
-            UIElement element = itemsControl.InputHitTest(point) as UIElement;
+            var element = itemsControl.InputHitTest(point) as UIElement;
             while (element != null)
             {
                 if (element == itemsControl)
@@ -33,5 +34,11 @@ namespace GotifyClient.Modules
     
         [DllImport("kernel32.dll")]
         public static extern bool FreeConsole();
+
+        public static string GetValidFileName(string rawString)
+        {
+            var invalidChars = new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars());
+            return invalidChars.Aggregate(rawString, (current, c) => current.Replace(c.ToString(), ""));
+        }
     }
 }

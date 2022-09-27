@@ -17,8 +17,8 @@
         <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
         <StartupObject>GotifyClient.Program</StartupObject>
         
-<!--        <UseWPF>true</UseWPF>-->
-<!--        <UseWindowsForms>true</UseWindowsForms>-->
+        <UseWPF>true</UseWPF>
+        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +30,7 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
         <Prefer32bit>true</Prefer32bit>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -107,6 +108,7 @@
         <Compile Include="Entities\ConfigEntity.cs" />
         <Compile Include="Entities\GotifyMessageEntity.cs" />
         <Compile Include="Entities\ServerEntity.cs" />
+        <Compile Include="Modules\Client.cs" />
         <Compile Include="Modules\Connections.cs" />
         <Compile Include="Modules\DelegateCommand.cs" />
         <Compile Include="Modules\Listener.cs" />
@@ -137,6 +139,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="App.config" />
+        <Resource Include="bin\Debug\icon.ico" />
         <Resource Include="icon.ico" />
         <None Include="packages.config" />
         <Reference Include="System.Drawing" />

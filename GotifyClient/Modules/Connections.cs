@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using GotifyClient.Entities;
 using Hardcodet.Wpf.TaskbarNotification;
+using log4net;
 using Newtonsoft.Json;
 using Websocket.Client;
 using Websocket.Client.Models;
@@ -17,9 +19,13 @@ namespace GotifyClient.Modules
     public class Connections
     {
         private readonly TaskbarIcon _taskbar = (TaskbarIcon)Application.Current.Resources["Taskbar"];
-        public readonly Dictionary<string, Listener> Listeners = new Dictionary<string, Listener>();
+        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
+
+        public readonly Dictionary<string, Client> Clients = new Dictionary<string, Client>();
+        
         private const string ConfigPath = "config.yaml";
         private ConfigEntity _config;
+        
         public Action<GotifyMessageEntity> CallbackOnMessage { get; set; }
         public Action<ReconnectionInfo> CallbackOnReconnected { get; set; }
         public Action<DisconnectionInfo> CallbackOnDisconnected { get; set; }
@@ -29,26 +35,32 @@ namespace GotifyClient.Modules
             LoadConfig();
             foreach (var server in _config.Servers)
             {
-                if (Listeners.ContainsKey(server.Name)) continue;
-                var listener = new Listener(server, OnMessage, OnReconnected);
-                Listeners.Add(server.Name, listener);
+                if (Clients.ContainsKey(server.Name)) continue;
+                var client = new Client(server, OnMessage, OnReconnected, OnDisconnected);
+                Clients.Add(server.Name, client);
             }
         }
 
         public IEnumerable<string> GetAllNames()
         {
-            return _config.Servers.Select(server => server.Name).ToList();
+            return Clients.Keys;
         }
         
-        public Listener GetListener(string name)
+        public Client GetClient(string name)
         {
-            return Listeners.TryGetValue(name, out var listener) ? listener : null;
+            return Clients.TryGetValue(name, out var client) ? client : null;
         }
         
         private void OnReconnected(ReconnectionInfo msg)
         {
-            Trace.WriteLine($"{Environment.NewLine}Reconnected: {msg.Type}");
+            Logger.Info($"{Environment.NewLine}Reconnected: {msg.Type}");
             CallbackOnReconnected?.Invoke(msg);
+        }
+        
+        private void OnDisconnected(DisconnectionInfo msg)
+        {
+            Logger.Info($"{Environment.NewLine}Disconnected: {msg.Type}");
+            CallbackOnDisconnected?.Invoke(msg);
         }
         
         private void OnMessage(ResponseMessage msg)
@@ -66,9 +78,10 @@ namespace GotifyClient.Modules
             log += $"{Environment.NewLine}Title: {t.Title}";
             log += $"{Environment.NewLine}Message: {t.Message}";
             log += Environment.NewLine;
-            Trace.Write(log);
-            _taskbar.ShowBalloonTip(t.Title, t.Message, BalloonIcon.None);
-            
+            Logger.Info(log);
+            // var iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/icon.ico"))?.Stream;
+            // var icon = new Icon(iconStream);
+            _taskbar.ShowBalloonTip(t.Title, t.Message, BalloonIcon.Info);
             CallbackOnMessage?.Invoke(t);
         }
 
@@ -93,7 +106,7 @@ namespace GotifyClient.Modules
             using (TextWriter writer = File.CreateText(ConfigPath))
             {
                 _config.Servers = new List<ServerEntity>();
-                foreach (var listener in Listeners)
+                foreach (var listener in Clients)
                 {
                     var value = listener.Value;
                     var server = new ServerEntity
@@ -115,19 +128,19 @@ namespace GotifyClient.Modules
         
         public void AddServer(ServerEntity server, ServerEntity oriServer = null)
         {
-            if (string.IsNullOrEmpty(server.Name) || Listeners.ContainsKey(server.Name))
+            if (string.IsNullOrEmpty(server.Name) || Clients.ContainsKey(server.Name))
             {
                 return;
             }
 
             if (!(oriServer is null))
             {
-                var listener = Listeners[oriServer.Name];
+                var listener = Clients[oriServer.Name];
                 if (listener.Name != server.Name)
                 {
                     listener.Name = server.Name;
-                    Listeners.Add(server.Name, listener);
-                    Listeners.Remove(oriServer.Name);
+                    Clients.Add(server.Name, listener);
+                    Clients.Remove(oriServer.Name);
                 }
                 listener.Host = server.Host;
                 listener.Port = server.Port;
@@ -135,20 +148,20 @@ namespace GotifyClient.Modules
             }
             else
             {
-                var listener = new Listener(server, OnMessage, OnReconnected);
-                Listeners.Add(server.Name, listener);
+                var client = new Client(server, OnMessage, OnReconnected, OnDisconnected);
+                Clients.Add(server.Name, client);
             }
             SaveConfig();
         }
         
         public void RemoveServer(string name)
         {
-            if (string.IsNullOrEmpty(name) || !Listeners.ContainsKey(name))
+            if (string.IsNullOrEmpty(name) || !Clients.ContainsKey(name))
             {
                 return;
             }
-            Listeners[name].Stop();
-            Listeners.Remove(name);
+            Clients[name].StopListener();
+            Clients.Remove(name);
             SaveConfig();
         }
     }

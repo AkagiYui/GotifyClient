@@ -17,18 +17,18 @@ namespace GotifyClient.Windows
     {
         private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()?.DeclaringType);
         private static readonly Connections Connections = Application.Current.Properties["connections"] as Connections;
-        private Listener _listener;
-        private Listener SelectedListener
+        private Client _client;
+        private Client SelectedClient
         {
-            get => _listener;
+            get => _client;
             set
             {
-                if (_listener == value) return;
-                _listener = value;
-                if (_listener == null) return;
-                NameTextBox.Text = _listener.Name;
-                UrlTextBox.Text = $"{_listener.Host}:{_listener.Port}";
-                TokenTextBox.Text = _listener.Token;
+                if (_client == value) return;
+                _client = value;
+                if (_client == null) return;
+                NameTextBox.Text = _client.Name;
+                UrlTextBox.Text = $"{_client.Host}:{_client.Port}";
+                TokenTextBox.Text = _client.Token;
             }
         }
 
@@ -43,9 +43,9 @@ namespace GotifyClient.Windows
         private void ConnectButton_OnClick(object sender, RoutedEventArgs e)
         {
             Trace.WriteLine(Owner);
-            foreach(var listener in Connections.Listeners)
+            foreach(var listener in Connections.Clients)
             {
-                listener.Value.Start();
+                listener.Value.StartListener();
             }
         }
 
@@ -100,7 +100,7 @@ namespace GotifyClient.Windows
         private void MenuItemEdit_OnClick(object sender, RoutedEventArgs e)
         {
             if (!(ConnectionBox.SelectedItem is string listenerName)) return;
-            var addListenerWindow = new EditListenerWindow(Connections.GetListener(listenerName))
+            var addListenerWindow = new EditListenerWindow(Connections.GetClient(listenerName))
             {
                 Owner = this
             };
@@ -121,7 +121,7 @@ namespace GotifyClient.Windows
             {
                 return;
             }
-            SelectedListener = Connections.GetListener(name);
+            SelectedClient = Connections.GetClient(name);
             
         }
     }
